@@ -2,3 +2,4 @@
 
 Plugin in `/plugin/ai-agentgate`; QA in `/qa`; docs in `/docs`.
 (CI trigger test: 2025-09-17)
+CI run
