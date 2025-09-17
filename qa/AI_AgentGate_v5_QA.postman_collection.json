@@ -1,1 +1,562 @@
-{}
+{
+  "info": {
+    "name": "AI AgentGate v5.0.0 \u2013 Full QA",
+    "_postman_id": "agentgate-v5-qa-collection",
+    "description": "Complete verification for AI AgentGate v5.0.0 (Schema x5, Featured Image only update, Negative cases).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1) Rate Limiting (Schema x5)",
+      "item": [
+        {
+          "name": "Schema #1",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/ai/v1/schema",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wp-json",
+                "ai",
+                "v1",
+                "schema"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-AgentGate-Build present', () => pm.expect(pm.response.headers.get('X-AgentGate-Build')).to.be.ok);",
+                  "const rem = pm.response.headers.get('X-RateLimit-Remaining');\npm.test('Remaining exists', () => pm.expect(rem).to.be.ok);\npm.environment.set('rl_rem_1', rem);\nif (1 > 1) {\n  const prev = parseInt(pm.environment.get('rl_rem_0'), 10);\n  const cur  = parseInt(rem, 10);\n  pm.test('Remaining decremented by 1', () => pm.expect(prev - cur).to.eql(1));\n}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Schema #2",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/ai/v1/schema",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wp-json",
+                "ai",
+                "v1",
+                "schema"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-AgentGate-Build present', () => pm.expect(pm.response.headers.get('X-AgentGate-Build')).to.be.ok);",
+                  "const rem = pm.response.headers.get('X-RateLimit-Remaining');\npm.test('Remaining exists', () => pm.expect(rem).to.be.ok);\npm.environment.set('rl_rem_2', rem);\nif (2 > 1) {\n  const prev = parseInt(pm.environment.get('rl_rem_1'), 10);\n  const cur  = parseInt(rem, 10);\n  pm.test('Remaining decremented by 1', () => pm.expect(prev - cur).to.eql(1));\n}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Schema #3",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/ai/v1/schema",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wp-json",
+                "ai",
+                "v1",
+                "schema"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-AgentGate-Build present', () => pm.expect(pm.response.headers.get('X-AgentGate-Build')).to.be.ok);",
+                  "const rem = pm.response.headers.get('X-RateLimit-Remaining');\npm.test('Remaining exists', () => pm.expect(rem).to.be.ok);\npm.environment.set('rl_rem_3', rem);\nif (3 > 1) {\n  const prev = parseInt(pm.environment.get('rl_rem_2'), 10);\n  const cur  = parseInt(rem, 10);\n  pm.test('Remaining decremented by 1', () => pm.expect(prev - cur).to.eql(1));\n}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Schema #4",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/ai/v1/schema",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wp-json",
+                "ai",
+                "v1",
+                "schema"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-AgentGate-Build present', () => pm.expect(pm.response.headers.get('X-AgentGate-Build')).to.be.ok);",
+                  "const rem = pm.response.headers.get('X-RateLimit-Remaining');\npm.test('Remaining exists', () => pm.expect(rem).to.be.ok);\npm.environment.set('rl_rem_4', rem);\nif (4 > 1) {\n  const prev = parseInt(pm.environment.get('rl_rem_3'), 10);\n  const cur  = parseInt(rem, 10);\n  pm.test('Remaining decremented by 1', () => pm.expect(prev - cur).to.eql(1));\n}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Schema #5",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/ai/v1/schema",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wp-json",
+                "ai",
+                "v1",
+                "schema"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-AgentGate-Build present', () => pm.expect(pm.response.headers.get('X-AgentGate-Build')).to.be.ok);",
+                  "const rem = pm.response.headers.get('X-RateLimit-Remaining');\npm.test('Remaining exists', () => pm.expect(rem).to.be.ok);\npm.environment.set('rl_rem_5', rem);\nif (5 > 1) {\n  const prev = parseInt(pm.environment.get('rl_rem_4'), 10);\n  const cur  = parseInt(rem, 10);\n  pm.test('Remaining decremented by 1', () => pm.expect(prev - cur).to.eql(1));\n}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2) Featured Image Only Update",
+      "item": [
+        {
+          "name": "Create Draft Post",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"post\",\n  \"mode\": \"create\",\n  \"title\": \"QA v5 Draft\",\n  \"status\": \"draft\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/ai/v1/content",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wp-json",
+                "ai",
+                "v1",
+                "content"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-AgentGate-Build present', () => pm.expect(pm.response.headers.get('X-AgentGate-Build')).to.be.ok);",
+                  "const j = pm.response.json(); pm.environment.set('post_id', j.id); pm.test('post_id captured', () => pm.expect(j.id).to.be.ok);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Upload Image (multipart)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "{{local_image_path}}"
+                },
+                {
+                  "key": "filename",
+                  "type": "text",
+                  "value": "qa-image.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/ai/v1/media",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wp-json",
+                "ai",
+                "v1",
+                "media"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-AgentGate-Build present', () => pm.expect(pm.response.headers.get('X-AgentGate-Build')).to.be.ok);",
+                  "const j = pm.response.json(); const mid = j.id || j.attachment_id || j.media_id; pm.environment.set('media_id', mid); pm.test('media_id captured', () => pm.expect(mid).to.be.ok);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update with ONLY featured_image",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"post\",\n  \"mode\": \"update\",\n  \"id\": {{post_id}},\n  \"featured_image\": {{media_id}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/ai/v1/content",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wp-json",
+                "ai",
+                "v1",
+                "content"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('X-AgentGate-Build present', () => pm.expect(pm.response.headers.get('X-AgentGate-Build')).to.be.ok);",
+                  "const j = pm.response.json(); pm.test('same post id', () => pm.expect(j.id).to.eql(parseInt(pm.environment.get('post_id'),10)));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3) Negative Cases",
+      "item": [
+        {
+          "name": "Non-image featured_image \u2192 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"type\":\"post\", \"mode\":\"update\", \"id\": {{post_id}}, \"featured_image\": 1 }"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/ai/v1/content",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wp-json",
+                "ai",
+                "v1",
+                "content"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                  "pm.test('X-AgentGate-Build present', () => pm.expect(pm.response.headers.get('X-AgentGate-Build')).to.be.ok);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid post id \u2192 404",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"type\":\"post\", \"mode\":\"update\", \"id\": 99999999, \"featured_image\": {{media_id}} }"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/ai/v1/content",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wp-json",
+                "ai",
+                "v1",
+                "content"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                  "pm.test('X-AgentGate-Build present', () => pm.expect(pm.response.headers.get('X-AgentGate-Build')).to.be.ok);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Schema without token \u2192 401",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/ai/v1/schema",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wp-json",
+                "ai",
+                "v1",
+                "schema"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Schema with disabled token \u2192 403",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{disabled_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wp-json/ai/v1/schema",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wp-json",
+                "ai",
+                "v1",
+                "schema"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', () => pm.response.to.have.status(403));",
+                  "pm.test('X-AgentGate-Build present', () => pm.expect(pm.response.headers.get('X-AgentGate-Build')).to.be.ok);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
