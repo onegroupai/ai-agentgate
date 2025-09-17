@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-and-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- PHP lint (always runs) ---
+      - name: Install PHP
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y php-cli
+      - name: PHP lint plugin
+        run: |
+          find plugin/ai-agentgate -name "*.php" -print0 | xargs -0 -n1 php -l
+
+      # --- QA (runs only if the Postman files exist) ---
+      - name: Setup Node (for Newman)
+        if: ${{ hashFiles('qa/AI_AgentGate_v5_QA.postman_collection.json') != '' && hashFiles('qa/AI_AgentGate_QA.environment.json') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Newman
+        if: ${{ hashFiles('qa/AI_AgentGate_v5_QA.postman_collection.json') != '' && hashFiles('qa/AI_AgentGate_QA.environment.json') != '' }}
+        run: npm install -g newman
+
+      - name: Create env with secrets
+        if: ${{ hashFiles('qa/AI_AgentGate_v5_QA.postman_collection.json') != '' && hashFiles('qa/AI_AgentGate_QA.environment.json') != '' }}
+        run: |
+          cat > qa/_ci.environment.json <<'EOF'
+          {
+            "id": "ci-env",
+            "name": "AI AgentGate – CI Env",
+            "values": [
+              { "key": "baseUrl", "value": "${{ secrets.AG_BASE_URL }}", "enabled": true },
+              { "key": "token", "value": "${{ secrets.AG_TOKEN }}", "enabled": true },
+              { "key": "disabled_token", "value": "${{ secrets.AG_DISABLED_TOKEN }}", "enabled": true },
+              { "key": "sample_base64", "value": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB...", "enabled": true }
+            ]
+          }
+          EOF
+
+      - name: Run Postman QA
+        if: ${{ hashFiles('qa/AI_AgentGate_v5_QA.postman_collection.json') != '' && hashFiles('qa/AI_AgentGate_QA.environment.json') != '' }}
+        run: |
+          newman run "qa/AI_AgentGate_v5_QA.postman_collection.json" -e "qa/_ci.environment.json" --reporters cli
