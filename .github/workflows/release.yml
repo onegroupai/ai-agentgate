@@ -1,0 +1,19 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Zip plugin
+        run: |
+          cd plugin
+          zip -r ../ai-agentgate-${{ github.ref_name }}.zip ai-agentgate
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-agentgate-${{ github.ref_name }}
+          path: ai-agentgate-${{ github.ref_name }}.zip
