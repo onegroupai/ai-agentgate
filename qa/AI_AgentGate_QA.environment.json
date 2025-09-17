@@ -1,1 +1,26 @@
-{}
+{
+  "id": "agentgate-v5-qa-env",
+  "name": "AI AgentGate \u2013 QA Env",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "https://www.conferencehound.com",
+      "enabled": true
+    },
+    {
+      "key": "token",
+      "value": "{{AG_TOKEN_FROM_SECRETS}}",
+      "enabled": true
+    },
+    {
+      "key": "disabled_token",
+      "value": "{{AG_DISABLED_TOKEN_FROM_SECRETS}}",
+      "enabled": true
+    },
+    {
+      "key": "local_image_path",
+      "value": "/path/to/local/test-image.jpg",
+      "enabled": true
+    }
+  ]
+}
