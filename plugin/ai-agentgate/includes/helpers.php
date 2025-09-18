@@ -24,6 +24,16 @@ function ai_agentgate_register_routes() {
             'permission_callback' => 'ai_agentgate_authenticate_request',
         )
     );
+
+    register_rest_route(
+        'ai/v1',
+        '/content',
+        array(
+            'methods'             => WP_REST_Server::CREATABLE,
+            'callback'            => 'ai_agentgate_handle_content',
+            'permission_callback' => 'ai_agentgate_authenticate_request',
+        )
+    );
 }
 
 /**
@@ -40,12 +50,286 @@ function ai_agentgate_rest_schema( WP_REST_Request $request ) {
         'build'   => AI_AGENTGATE_BUILD,
         'routes'  => array(
             'schema' => '/wp-json/ai/v1/schema',
+            'content' => '/wp-json/ai/v1/content',
         ),
     );
 
     $payload = apply_filters( 'ai_agentgate_schema_payload', $payload, $request );
 
     return rest_ensure_response( $payload );
+}
+
+/**
+ * Handles create and update operations for content.
+ *
+ * @param WP_REST_Request $request The request instance.
+ *
+ * @return WP_REST_Response|WP_Error
+ */
+function ai_agentgate_handle_content( WP_REST_Request $request ) {
+    $params = $request->get_json_params();
+
+    if ( ! is_array( $params ) ) {
+        $params = $request->get_body_params();
+    }
+
+    if ( ! is_array( $params ) ) {
+        $params = array();
+    }
+
+    $mode = isset( $params['mode'] ) ? sanitize_key( $params['mode'] ) : '';
+
+    if ( '' === $mode ) {
+        return new WP_Error(
+            'ai_agentgate_missing_mode',
+            __( 'The mode parameter is required.', 'ai-agentgate' ),
+            array( 'status' => 400 )
+        );
+    }
+
+    if ( 'create' === $mode ) {
+        $post_type = isset( $params['type'] ) ? sanitize_key( $params['type'] ) : 'post';
+
+        if ( ! post_type_exists( $post_type ) ) {
+            return new WP_Error(
+                'ai_agentgate_invalid_post_type',
+                __( 'Invalid post type.', 'ai-agentgate' ),
+                array( 'status' => 400 )
+            );
+        }
+
+        $postarr = array(
+            'post_type'   => $post_type,
+            'post_status' => 'draft',
+        );
+
+        if ( isset( $params['status'] ) && '' !== $params['status'] ) {
+            $postarr['post_status'] = sanitize_key( $params['status'] );
+        }
+
+        if ( isset( $params['title'] ) ) {
+            $postarr['post_title'] = wp_slash( sanitize_text_field( $params['title'] ) );
+        }
+
+        if ( isset( $params['content'] ) ) {
+            $postarr['post_content'] = wp_slash( wp_kses_post( $params['content'] ) );
+        }
+
+        if ( isset( $params['excerpt'] ) ) {
+            $postarr['post_excerpt'] = wp_slash( wp_kses_post( $params['excerpt'] ) );
+        }
+
+        if ( isset( $params['slug'] ) ) {
+            $postarr['post_name'] = sanitize_title( $params['slug'] );
+        }
+
+        if ( isset( $params['author'] ) ) {
+            $postarr['post_author'] = absint( $params['author'] );
+        }
+
+        if ( isset( $params['comment_status'] ) ) {
+            $postarr['comment_status'] = sanitize_key( $params['comment_status'] );
+        }
+
+        if ( isset( $params['ping_status'] ) ) {
+            $postarr['ping_status'] = sanitize_key( $params['ping_status'] );
+        }
+
+        if ( isset( $params['password'] ) ) {
+            $postarr['post_password'] = sanitize_text_field( $params['password'] );
+        }
+
+        if ( isset( $params['date'] ) ) {
+            $postarr['post_date'] = sanitize_text_field( $params['date'] );
+        }
+
+        if ( isset( $params['date_gmt'] ) ) {
+            $postarr['post_date_gmt'] = sanitize_text_field( $params['date_gmt'] );
+        }
+
+        $post_id = wp_insert_post( $postarr, true );
+
+        if ( is_wp_error( $post_id ) ) {
+            return $post_id;
+        }
+
+        if ( isset( $params['featured_image'] ) && '' !== $params['featured_image'] ) {
+            $thumbnail = ai_agentgate_assign_featured_image( $post_id, $params['featured_image'] );
+
+            if ( is_wp_error( $thumbnail ) ) {
+                return $thumbnail;
+            }
+        }
+
+        return rest_ensure_response( array( 'id' => $post_id ) );
+    }
+
+    if ( 'update' === $mode ) {
+        $post_id = isset( $params['id'] ) ? absint( $params['id'] ) : 0;
+
+        if ( ! $post_id ) {
+            return new WP_Error(
+                'ai_agentgate_missing_post_id',
+                __( 'A valid post ID is required for updates.', 'ai-agentgate' ),
+                array( 'status' => 400 )
+            );
+        }
+
+        $post = get_post( $post_id );
+
+        if ( ! $post ) {
+            return new WP_Error(
+                'ai_agentgate_post_not_found',
+                __( 'Post not found.', 'ai-agentgate' ),
+                array( 'status' => 404 )
+            );
+        }
+
+        if ( isset( $params['type'] ) ) {
+            $requested_type = sanitize_key( $params['type'] );
+
+            if ( $requested_type !== $post->post_type ) {
+                return new WP_Error(
+                    'ai_agentgate_post_type_mismatch',
+                    __( 'The requested post type does not match the target post.', 'ai-agentgate' ),
+                    array( 'status' => 400 )
+                );
+            }
+        }
+
+        $has_featured_image   = array_key_exists( 'featured_image', $params );
+        $non_control_keys     = array_diff( array_keys( $params ), array( 'type', 'mode', 'id' ) );
+        $only_featured_update = $has_featured_image && empty( array_diff( $non_control_keys, array( 'featured_image' ) ) );
+
+        if ( $only_featured_update ) {
+            // AG: featured_image-only early return
+            $thumbnail = ai_agentgate_assign_featured_image( $post_id, $params['featured_image'] );
+
+            if ( is_wp_error( $thumbnail ) ) {
+                return $thumbnail;
+            }
+
+            return rest_ensure_response( array( 'id' => $post_id ) );
+        }
+
+        $postarr = array(
+            'ID' => $post_id,
+        );
+
+        if ( isset( $params['status'] ) && '' !== $params['status'] ) {
+            $postarr['post_status'] = sanitize_key( $params['status'] );
+        }
+
+        if ( isset( $params['title'] ) ) {
+            $postarr['post_title'] = wp_slash( sanitize_text_field( $params['title'] ) );
+        }
+
+        if ( isset( $params['content'] ) ) {
+            $postarr['post_content'] = wp_slash( wp_kses_post( $params['content'] ) );
+        }
+
+        if ( isset( $params['excerpt'] ) ) {
+            $postarr['post_excerpt'] = wp_slash( wp_kses_post( $params['excerpt'] ) );
+        }
+
+        if ( isset( $params['slug'] ) ) {
+            $postarr['post_name'] = sanitize_title( $params['slug'] );
+        }
+
+        if ( isset( $params['author'] ) ) {
+            $postarr['post_author'] = absint( $params['author'] );
+        }
+
+        if ( isset( $params['comment_status'] ) ) {
+            $postarr['comment_status'] = sanitize_key( $params['comment_status'] );
+        }
+
+        if ( isset( $params['ping_status'] ) ) {
+            $postarr['ping_status'] = sanitize_key( $params['ping_status'] );
+        }
+
+        if ( isset( $params['password'] ) ) {
+            $postarr['post_password'] = sanitize_text_field( $params['password'] );
+        }
+
+        if ( isset( $params['date'] ) ) {
+            $postarr['post_date'] = sanitize_text_field( $params['date'] );
+        }
+
+        if ( isset( $params['date_gmt'] ) ) {
+            $postarr['post_date_gmt'] = sanitize_text_field( $params['date_gmt'] );
+        }
+
+        $updated = wp_update_post( $postarr, true );
+
+        if ( is_wp_error( $updated ) ) {
+            return $updated;
+        }
+
+        if ( $has_featured_image ) {
+            $thumbnail = ai_agentgate_assign_featured_image( $post_id, $params['featured_image'] );
+
+            if ( is_wp_error( $thumbnail ) ) {
+                return $thumbnail;
+            }
+        }
+
+        return rest_ensure_response( array( 'id' => $post_id ) );
+    }
+
+    return new WP_Error(
+        'ai_agentgate_invalid_mode',
+        __( 'Unsupported mode requested.', 'ai-agentgate' ),
+        array( 'status' => 400 )
+    );
+}
+
+/**
+ * Validates and assigns the featured image for a post.
+ *
+ * @param int   $post_id         The post ID being modified.
+ * @param mixed $featured_image  The attachment identifier.
+ *
+ * @return true|WP_Error
+ */
+function ai_agentgate_assign_featured_image( $post_id, $featured_image ) {
+    $attachment_id = absint( $featured_image );
+
+    if ( $attachment_id <= 0 ) {
+        return new WP_Error(
+            'ai_agentgate_invalid_featured_image',
+            __( 'The featured image must be a valid attachment ID.', 'ai-agentgate' ),
+            array( 'status' => 400 )
+        );
+    }
+
+    $attachment = get_post( $attachment_id );
+
+    if ( ! $attachment || 'attachment' !== $attachment->post_type ) {
+        return new WP_Error(
+            'ai_agentgate_invalid_featured_image',
+            __( 'The featured image must reference an attachment.', 'ai-agentgate' ),
+            array( 'status' => 400 )
+        );
+    }
+
+    if ( ! wp_attachment_is_image( $attachment_id ) ) {
+        return new WP_Error(
+            'ai_agentgate_invalid_featured_image_type',
+            __( 'The featured image must be an image attachment.', 'ai-agentgate' ),
+            array( 'status' => 400 )
+        );
+    }
+
+    if ( ! set_post_thumbnail( $post_id, $attachment_id ) ) {
+        return new WP_Error(
+            'ai_agentgate_failed_featured_image',
+            __( 'Unable to set the featured image.', 'ai-agentgate' ),
+            array( 'status' => 500 )
+        );
+    }
+
+    return true;
 }
 
 /**
